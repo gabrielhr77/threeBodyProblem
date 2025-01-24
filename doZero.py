@@ -7,7 +7,7 @@ G=0.1
 fonte=pygame.font.Font(None,36)
 fps=pygame.time.Clock()
 vetorBase=[10,10]
-dt = fps.tick(6)
+dt = fps.tick(60)
 
 class Planeta:
     def __init__(self,nome,corOriginal,corDinamica,posicaoX,posicaoY,massa,raio,anguloVel,moduloVel):
@@ -64,25 +64,16 @@ class SistemaEstelar:
         xPonta=(planeta.posicaoX+aceleracaoX*100)
         yPonta=(planeta.posicaoY+aceleracaoY*100)
         if (math.sqrt((planeta.posicaoX-xPonta)**2+(planeta.posicaoY-yPonta)**2))<100:
+            anguloAux = math.atan2(aceleracaoY, aceleracaoX)
+            largura_base = 6
+            altura_triangulo = 10
+            xFront = xPonta + altura_triangulo * math.cos(anguloAux)
+            yFront = yPonta + altura_triangulo * math.sin(anguloAux)
+            estibordo = (xPonta + largura_base * math.cos(anguloAux + math.pi / 2), yPonta + largura_base * math.sin(anguloAux + math.pi / 2))
+            bombordo = (xPonta + largura_base * math.cos(anguloAux - math.pi / 2), yPonta + largura_base * math.sin(anguloAux - math.pi / 2))
             pygame.draw.line(self.win, (255,255,255), (planeta.posicaoX, planeta.posicaoY), (xPonta, yPonta), 2)
+            pygame.draw.polygon(self.win, (255, 255, 255), [estibordo, bombordo, (xFront, yFront)])
         return [aceleracaoX,aceleracaoY]
-
-    def desenhaSeta(self,tela,xPlaneta,yPlaneta,modulo,angulo):
-        cor = (255, 255, 255)
-        comprimento=math.sqrt((modulo*math.sin(angulo))**2+(modulo*math.cos(angulo))**2)
-        if comprimento==0:
-            return
-        escala=100#ajusta o comprimento visual da seta
-        xPonta=xPlaneta+(modulo*math.cos(angulo))*escala
-        yPonta=yPlaneta+(modulo*math.sin(angulo))*escala
-        anguloAux=math.atan2((modulo*math.cos(angulo)),(modulo*math.sin(angulo)))
-        tamanhoPonta=10
-        angulo1=anguloAux+math.radians(150)
-        angulo2=anguloAux-math.radians(150)
-        ponta1=(xPonta+tamanhoPonta*math.cos(angulo),yPonta+tamanhoPonta*math.sin(angulo))
-        ponta2=(xPonta+tamanhoPonta*math.cos(angulo),yPonta+tamanhoPonta*math.sin(angulo))
-        pygame.draw.line(tela, cor, (xPlaneta, yPlaneta), (xPonta, yPonta), 2)
-        pygame.draw.polygon(tela,cor,[(xPonta,yPonta),ponta1,ponta2])
 
     def geraQuadro(self):
         self.win.fill((0,0,0))
@@ -115,12 +106,11 @@ class SistemaEstelar:
 
 def main():
     #teste=Planeta("nome",corOriginal,corDinamica,posX,posY,massa,raio,anguloVel,moduloVel)
-    lua = Planeta('Lua', (128, 128, 128), (128, 128, 128), 624, 350, 100, 5, 90, 5)
-    terra = Planeta('Terra', (0, 0, 255), (0, 0, 255), 412, 350, 100, 15, -90, 5)
+    lua = Planeta('Lua', (128, 128, 128), (128, 128, 128), 624, 350, 100, 5, 140, 5)
+    terra = Planeta('Terra', (0, 0, 255), (0, 0, 255), 412, 350, 100, 15, 0, 0)
     rodando = True
     solar = SistemaEstelar([lua, terra])
     while rodando:
-        #dt = fps.tick(60)
         solar.geraQuadro()
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
